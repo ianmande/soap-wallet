@@ -97,5 +97,231 @@ class WalletService
         }
     }
 
- 
+    public function initiatePayment(string $document, string $phone, float $amount): array
+    {
+        try {
+            // Search client by document and phone
+            $client = Client::byDocumentAndPhone($document, $phone)->first();
+
+            if (!$client) {
+                return [
+                    'success' => false,
+                    'code' => '03',
+                    'message' => 'Cliente no encontrado con ese documento y teléfono'
+                ];
+            }
+
+            if (!$client->hasActiveWallet()) {
+                return [
+                    'success' => false,
+                    'code' => '04',
+                    'message' => 'Cliente no tiene una billetera activa'
+                ];
+            }
+
+            if (!$client->wallet->hasSufficientBalance($amount)) {
+                return [
+                    'success' => false,
+                    'code' => '06',
+                    'message' => 'Saldo insuficiente para realizar el pago'
+                ];
+            }
+
+            $token = Token::createPaymentToken($client->id, $amount, 10); // 10 minutos de expiración
+
+            $this->sendPaymentToken($client->email, $token->token, $client->names);
+
+            return [
+                'success' => true,
+                'data' => [
+                    'session_id' => $token->session_id,
+                    'client_id' => $client->id,
+                    'amount' => $amount,
+                    'expires_at' => $token->expires_at->toISOString(),
+                    'email_sent' => true,
+                    'current_balance' => $client->wallet->balance
+                ]
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('Error iniciando pago: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'code' => '07',
+                'message' => 'Error al iniciar pago: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    public function confirmPayment(string $sessionId, string $token): array
+    {
+        try {
+            $paymentToken = Token::validateSessionToken($sessionId, $token);
+
+            if (!$paymentToken) {
+                return [
+                    'success' => false,
+                    'code' => '08',
+                    'message' => 'Token inválido, expirado o sesión no encontrada'
+                ];
+            }
+
+            $client = $paymentToken->client;
+
+            if (!$client->wallet->hasSufficientBalance($paymentToken->amount)) {
+                return [
+                    'success' => false,
+                    'code' => '06',
+                    'message' => 'Saldo insuficiente para completar el pago'
+                ];
+            }
+
+            return DB::transaction(function () use ($paymentToken, $client) {
+                $paymentToken->confirm();
+
+                $transaction = $client->wallet->deduct(
+                    $paymentToken->amount,
+                    "Pago confirmado con token {$paymentToken->token}",
+                    $paymentToken->session_id
+                );
+
+                return [
+                    'success' => true,
+                    'data' => [
+                        'client_id' => $client->id,
+                        'session_id' => $paymentToken->session_id,
+                        'amount_paid' => $paymentToken->amount,
+                        'previous_balance' => $transaction->previous_balance,
+                        'new_balance' => $transaction->new_balance,
+                        'transaction_id' => $transaction->id,
+                        'confirmed_at' => $paymentToken->confirmed_at->toISOString()
+                    ]
+                ];
+            });
+
+        } catch (\Exception $e) {
+            Log::error('Error confirmando pago: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'code' => '09',
+                'message' => 'Error al confirmar pago: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    public function checkBalance(string $document, string $phone): array
+    {
+        try {
+            // Search client by document and phone
+            $client = Client::byDocumentAndPhone($document, $phone)->first();
+
+            if (!$client) {
+                return [
+                    'success' => false,
+                    'code' => '03',
+                    'message' => 'Cliente no encontrado con ese documento y teléfono'
+                ];
+            }
+
+            if (!$client->hasActiveWallet()) {
+                return [
+                    'success' => false,
+                    'code' => '04',
+                    'message' => 'Cliente no tiene una billetera activa'
+                ];
+            }
+
+            return [
+                'success' => true,
+                'data' => [
+                    'client_id' => $client->id,
+                    'document' => $client->document,
+                    'names' => $client->names,
+                    'phone' => $client->phone,
+                    'balance' => $client->wallet->balance,
+                    'wallet_active' => $client->wallet->active,
+                    'last_updated' => $client->wallet->updated_at->toISOString()
+                ]
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('Error consultando saldo: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'code' => '10',
+                'message' => 'Error al consultar saldo: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    public function getTransactionHistory(string $document, string $phone, int $page = 1, int $perPage = 20): array
+    {
+        try {
+            // Search client by document and phone
+            $client = Client::byDocumentAndPhone($document, $phone)->first();
+
+            if (!$client) {
+                return [
+                    'success' => false,
+                    'code' => '03',
+                    'message' => 'Cliente no encontrado con ese documento y teléfono'
+                ];
+            }
+
+            $transactions = Transaction::getByClientPaginated($client->id, $perPage);
+
+            return [
+                'success' => true,
+                'data' => [
+                    'client_id' => $client->id,
+                    'document' => $client->document,
+                    'phone' => $client->phone,
+                    'current_page' => $transactions->currentPage(),
+                    'per_page' => $transactions->perPage(),
+                    'total' => $transactions->total(),
+                    'last_page' => $transactions->lastPage(),
+                    'transactions' => $transactions->items()->map(function ($transaction) {
+                        return [
+                            'id' => $transaction->id,
+                            'type' => $transaction->type,  
+                            'amount' => $transaction->amount,
+                            'previous_balance' => $transaction->previous_balance,
+                            'new_balance' => $transaction->new_balance,
+                            'description' => $transaction->description,
+                            'reference' => $transaction->reference,
+                            'status' => $transaction->status,
+                            'created_at' => $transaction->created_at->toISOString()
+                        ];
+                    })->toArray()
+                ]
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('Error obteniendo historial de transacciones: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'code' => '10',
+                'message' => 'Error al consultar historial de transacciones: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    private function sendPaymentToken(string $email, string $token, string $names): void
+    {
+        try {
+            // In production, here we would implement the real email sending
+            Log::info("Token de pago enviado", [
+                'email' => $email,
+                'names' => $names,
+                'token' => $token,
+                'timestamp' => now()
+            ]);
+
+            // Mail::send(...);
+
+        } catch (\Exception $e) {
+            Log::error('Error enviando email con token: ' . $e->getMessage());
+            throw $e;
+        }
+    }
 } 
