@@ -10,6 +10,8 @@ Route::get('/', function () {
 Route::group(['prefix' => 'soap', 'middleware' => 'web'], function () {
     Route::post('/registerClient', [WalletSoapController::class, 'registerClient'])->withoutMiddleware(['web']);
     
+    Route::post('/rechargeWallet', [WalletSoapController::class, 'rechargeWallet'])->withoutMiddleware(['web']);
+
 });
 
 Route::get('/soap/info', function () {
@@ -18,7 +20,8 @@ Route::get('/soap/info', function () {
         'version' => '1.0',
         'endpoints' => [
             'POST /soap/registerClient' => 'Registrar nuevo cliente',
-           
+            'POST /soap/rechargeWallet' => 'Recargar billetera',
+       
         ]
     ]);
 });

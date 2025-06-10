@@ -49,5 +49,53 @@ class WalletService
         }
     }
 
+    public function rechargeWallet(string $document, string $phone, float $amount): array
+    {
+        try {
+            // Search client by document and phone
+            $client = Client::byDocumentAndPhone($document, $phone)->first();
 
+            if (!$client) {
+                return [
+                    'success' => false,
+                    'code' => '03',
+                    'message' => 'Cliente no encontrado con ese documento y teléfono'
+                ];
+            }
+
+            if (!$client->hasActiveWallet()) {
+                return [
+                    'success' => false,
+                    'code' => '04',
+                    'message' => 'Cliente no tiene una billetera activa'
+                ];
+            }
+
+            $transaction = $client->wallet->recharge($amount, "Recarga de billetera por $amount");
+
+            return [
+                'success' => true,
+                'data' => [
+                    'client_id' => $client->id,
+                    'document' => $client->document,
+                    'phone' => $client->phone,
+                    'amount_recharged' => $amount,
+                    'previous_balance' => $transaction->previous_balance,
+                    'new_balance' => $transaction->new_balance,
+                    'transaction_id' => $transaction->id,
+                    'timestamp' => $transaction->created_at->toISOString()
+                ]
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('Error recargando billetera: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'code' => '05',
+                'message' => 'Error al recargar billetera: ' . $e->getMessage()
+            ];
+        }
+    }
+
+ 
 } 

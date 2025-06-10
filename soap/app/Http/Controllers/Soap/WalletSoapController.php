@@ -53,5 +53,35 @@ class WalletSoapController extends Controller
         }
     }
     
+    public function rechargeWallet(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'documento' => 'required|string|max:20',
+                'celular' => 'required|string|max:15',
+                'valor' => 'required|numeric|min:0.01'
+            ]);
+
+            if ($validator->fails()) {
+                return $this->validationErrorResponse($validator->errors()->first());
+            }
+
+            $result = $this->walletService->rechargeWallet(
+                $request->documento,
+                $request->celular,
+                $request->valor
+            );
+
+            if ($result['success']) {
+                return $this->successResponse('Recarga realizada exitosamente', $result['data']);
+            }
+
+            return $this->errorResponse($result['code'], $result['message']);
+
+        } catch (\Exception $e) {
+            Log::error('Error en recargaBilletera: ' . $e->getMessage());
+            return $this->serverErrorResponse();
+        }
+    }
 
 } 
