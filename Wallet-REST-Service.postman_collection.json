@@ -1,0 +1,166 @@
+{
+  "info": {
+    "_postman_id": "c6b50834-1234-4b95-9e61-123456789abc",
+    "name": "Wallet REST Service - ePayco",
+    "description": "Colección Postman con todos los endpoints del servicio REST de billetera virtual.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "patch": 0
+    }
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Información del Servicio",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/",
+          "host": ["{{base_url}}"],
+          "path": [""]
+        }
+      }
+    },
+    {
+      "name": "02 - Registrar Cliente",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"documento\": \"12345678\",\n  \"nombres\": \"Juan Pérez\",\n  \"email\": \"juan@example.com\",\n  \"celular\": \"5551234567\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/wallet/register-client",
+          "host": ["{{base_url}}"],
+          "path": ["api", "wallet", "register-client"]
+        }
+      }
+    },
+    {
+      "name": "03 - Recargar Billetera",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"documento\": \"12345678\",\n  \"celular\": \"5551234567\",\n  \"valor\": 100000\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/wallet/recharge",
+          "host": ["{{base_url}}"],
+          "path": ["api", "wallet", "recharge"]
+        }
+      }
+    },
+    {
+      "name": "04 - Iniciar Pago",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"documento\": \"12345678\",\n  \"celular\": \"5551234567\",\n  \"valor\": 25000\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/wallet/pay",
+          "host": ["{{base_url}}"],
+          "path": ["api", "wallet", "pay"]
+        }
+      }
+    },
+    {
+      "name": "05 - Confirmar Pago",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"session_id\": \"{{session_id}}\",\n  \"token\": \"{{token}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/wallet/confirm-payment",
+          "host": ["{{base_url}}"],
+          "path": ["api", "wallet", "confirm-payment"]
+        }
+      }
+    },
+    {
+      "name": "06 - Consultar Saldo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"documento\": \"12345678\",\n  \"celular\": \"5551234567\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/wallet/balance",
+          "host": ["{{base_url}}"],
+          "path": ["api", "wallet", "balance"]
+        }
+      }
+    },
+    {
+      "name": "07 - Historial de Transacciones",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"documento\": \"12345678\",\n  \"celular\": \"5551234567\",\n  \"limit\": 10,\n  \"offset\": 0\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/wallet/history",
+          "host": ["{{base_url}}"],
+          "path": ["api", "wallet", "history"]
+        }
+      }
+    }
+  ]
+}

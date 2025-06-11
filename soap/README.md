@@ -19,7 +19,7 @@ El sistema permite registrar clientes, cargar dinero, realizar pagos con confirm
 ## 🛠️ Tecnologías Utilizadas
 
 -   **Framework**: Laravel 10+
--   **Base de Datos**: SQLite (desarrollo) / MySQL (producción)
+-   **Base de Datos**: MySQL
 -   **ORM**: Eloquent
 -   **SOAP**: artisaninweb/laravel-soap
 -   **Validación**: Laravel Form Requests
@@ -31,7 +31,7 @@ El sistema permite registrar clientes, cargar dinero, realizar pagos con confirm
 
 -   PHP 8.1+
 -   Composer
--   SQLite o MySQL
+-   MySQL
 
 ### **Pasos de Instalación**
 
@@ -47,8 +47,16 @@ composer install
 cp .env.example .env
 php artisan key:generate
 
-# 4. Configurar base de datos (SQLite por defecto)
-touch database/database.sqlite
+# 4. Configurar MySQL
+# Crear base de datos y usuario MySQL:
+mysql -u root -p
+CREATE DATABASE wallet_epayco;
+CREATE USER 'wallet_user'@'localhost' IDENTIFIED BY 'wallet_2024';
+GRANT ALL PRIVILEGES ON wallet_epayco.* TO 'wallet_user'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+
+# Configurar variables en .env (ver sección Variables de Entorno)
 
 # 5. Ejecutar migraciones
 php artisan migrate
@@ -203,16 +211,12 @@ routes/
 ### **Variables de Entorno Importantes**
 
 ```env
-DB_CONNECTION=sqlite
-DB_DATABASE=/ruta/completa/database.sqlite
-
-# Para MySQL en producción:
-# DB_CONNECTION=mysql
-# DB_HOST=127.0.0.1
-# DB_PORT=3306
-# DB_DATABASE=wallet_db
-# DB_USERNAME=usuario
-# DB_PASSWORD=contraseña
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=wallet_epayco
+DB_USERNAME=wallet_user
+DB_PASSWORD=wallet_2024
 ```
 
 ### **Logs de Tokens**
