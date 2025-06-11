@@ -36,8 +36,8 @@ php artisan key:generate
 # Crear base de datos y usuario MySQL:
 mysql -u root -p
 CREATE DATABASE wallet_epayco;
-CREATE USER 'wallet_user'@'localhost' IDENTIFIED BY 'wallet_2024';
-GRANT ALL PRIVILEGES ON wallet_epayco.* TO 'wallet_user'@'localhost';
+CREATE USER 'usuario'@'localhost' IDENTIFIED BY 'contraseña';
+GRANT ALL PRIVILEGES ON wallet_epayco.* TO 'usuario'@'localhost';
 FLUSH PRIVILEGES;
 EXIT;
 
