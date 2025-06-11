@@ -243,13 +243,19 @@ export const getTransactionHistorySchema =
         "any.required": "El celular es requerido",
       }),
 
-    limit: Joi.number().integer().min(1).max(100).optional().messages({
-      "number.base": "El límite debe ser un número",
-      "number.min": "El límite mínimo es 1",
-      "number.max": "El límite máximo es 100",
-    }),
+    limit: Joi.number()
+      .integer()
+      .min(1)
+      .max(100)
+      .default(10)
+      .optional()
+      .messages({
+        "number.base": "El límite debe ser un número",
+        "number.min": "El límite mínimo es 1",
+        "number.max": "El límite máximo es 100",
+      }),
 
-    offset: Joi.number().integer().min(0).optional().messages({
+    offset: Joi.number().integer().min(0).default(0).optional().messages({
       "number.base": "El offset debe ser un número",
       "number.min": "El offset no puede ser negativo",
     }),
