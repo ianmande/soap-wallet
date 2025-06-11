@@ -1,14 +1,16 @@
 # 🚀 Wallet REST Service - ePayco
 
-Servicio REST desarrollado en **Node.js + TypeScript + Express** que actúa como puente entre clientes y el servicio SOAP de billetera virtual.
+## 📋 Descripción
 
-## ⚡ Características
+Servicio REST desarrollado en **Node.js + TypeScript + Express** que actúa como puente entre clientes y el servicio SOAP de billetera virtual. Este proyecto forma parte de la prueba técnica para el cargo de **Desarrollador BackEnd** en ePayco.
 
-- **TypeScript** con tipado estricto
-- **ESM** (ES Modules) con imports nativos
-- **Validación** con Joi
+## ⚡ Características Principales
 
-## 🛠️ Tecnologías
+- ✅ **TypeScript** con tipado estricto
+- ✅ **ESM** (ES Modules) con imports nativos
+- ✅ **Validación** con Joi
+
+## 🛠️ Tecnologías Utilizadas
 
 - **Runtime**: Node.js 18+
 - **Lenguaje**: TypeScript 5.3+
@@ -16,146 +18,46 @@ Servicio REST desarrollado en **Node.js + TypeScript + Express** que actúa como
 - **Validación**: Joi 17+
 - **HTTP Client**: Fetch API nativo
 
-## 📋 Instalación
+## 🚀 Instalación y Configuración
+
+### **Requisitos Previos**
+
+- Node.js 18+
+- npm
+
+### **Pasos de Instalación**
 
 ```bash
-# Instalar dependencias
+# 1. Clonar el repositorio
+# git clone [URL_DEL_REPOSITORIO]
+cd rest
+
+# 2. Instalar dependencias
 npm install
 
-# Configurar variables de entorno
+# 3. Configurar variables de entorno
 cp .env.example .env
 # Editar .env con tus valores
 
-# Desarrollo
+# 4. Iniciar servidor de desarrollo
 npm run dev
-
-# Producción
-npm run build
-npm start
 ```
 
-## 🔧 Configuración
+## 📡 Endpoints API Disponibles
 
-Todas las variables están centralizadas en `src/config/config.ts`:
+### **Base URL**: `http://localhost:3000`
 
-```typescript
-export const config = {
-  port: 3000,
-  nodeEnv: "development",
-  soapBaseUrl: "http://localhost:8000/soap",
-  corsOrigin: "*",
-};
-```
+| Método | Endpoint                      | Descripción                |
+| ------ | ----------------------------- | -------------------------- |
+| `GET`  | `/`                           | Información del servicio   |
+| `POST` | `/api/wallet/register-client` | Registrar nuevo cliente    |
+| `POST` | `/api/wallet/recharge`        | Recargar billetera         |
+| `POST` | `/api/wallet/pay`             | Iniciar pago               |
+| `POST` | `/api/wallet/confirm-payment` | Confirmar pago con token   |
+| `POST` | `/api/wallet/balance`         | Consultar saldo            |
+| `POST` | `/api/wallet/history`         | Historial de transacciones |
 
-### Variables de Entorno
-
-```env
-PORT=3000
-NODE_ENV=development
-SOAP_BASE_URL=http://localhost:8000/soap
-CORS_ORIGIN=*
-```
-
-## 📡 Endpoints API
-
-Base URL: `http://localhost:3000`
-
-### Información del Servicio
-
-```http
-GET /
-```
-
-### Registro de Cliente
-
-```http
-POST /api/wallet/register-client
-Content-Type: application/json
-
-{
-  "documento": "12345678",
-  "nombres": "Juan Pérez",
-  "email": "juan@example.com",
-  "celular": "555-1234"
-}
-```
-
-### Recargar Billetera
-
-```http
-POST /api/wallet/recharge
-Content-Type: application/json
-
-{
-  "documento": "12345678",
-  "celular": "555-1234",
-  "valor": 100000
-}
-```
-
-### Iniciar Pago
-
-```http
-POST /api/wallet/pay
-Content-Type: application/json
-
-{
-  "documento": "12345678",
-  "celular": "555-1234",
-  "valor": 25000
-}
-```
-
-### Confirmar Pago
-
-```http
-POST /api/wallet/confirm-payment
-Content-Type: application/json
-
-{
-  "session_id": "uuid-generado",
-  "token": "123456"
-}
-```
-
-### Consultar Saldo
-
-```http
-POST /api/wallet/balance
-Content-Type: application/json
-
-{
-  "documento": "12345678",
-  "celular": "555-1234"
-}
-```
-
-## 📊 Estructura de Respuesta
-
-Todas las respuestas siguen el mismo formato:
-
-```json
-{
-  "success": true,
-  "cod_error": "00",
-  "message_error": "Operación exitosa",
-  "data": {
-    // datos específicos según el endpoint
-  }
-}
-```
-
-### Códigos de Error
-
-| Código | Descripción                 |
-| ------ | --------------------------- |
-| `00`   | Operación exitosa           |
-| `01`   | Error de validación         |
-| `404`  | Endpoint no encontrado      |
-| `503`  | Servicio SOAP no disponible |
-| `99`   | Error interno               |
-
-## 🏗️ Estructura del Proyecto
+## 📁 Estructura del Proyecto
 
 ```
 src/
@@ -176,29 +78,21 @@ src/
 └── app.ts                     # Aplicación principal
 ```
 
-## 🔍 Scripts Disponibles
+## 🔧 Códigos de Error
 
-```bash
-npm run dev          # Desarrollo con hot reload
-npm run build        # Compilar a JavaScript
-npm start            # Ejecutar versión compilada
-npm run clean        # Limpiar carpeta dist
-```
+| Código | Descripción                 |
+| ------ | --------------------------- |
+| `00`   | Operación exitosa           |
+| `01`   | Error de validación         |
+| `404`  | Endpoint no encontrado      |
+| `503`  | Servicio SOAP no disponible |
+| `99`   | Error interno               |
 
-Respuesta:
+## 🔄 Flujo de Trabajo
 
-```json
-{
-  "success": true,
-  "cod_error": "00",
-  "message_error": "Estado del servicio verificado",
-  "data": {
-    "rest_service": "active",
-    "soap_service": "active",
-    "timestamp": "2024-01-15T10:30:00.000Z"
-  }
-}
-```
+1. **Cliente solicita registro o transacción** → Se valida y procesa la solicitud
+2. **Interacción con servicio SOAP** → Se comunica con el servicio SOAP para operaciones de billetera
+3. **Respuesta al cliente** → Se devuelve el resultado de la operación al cliente
 
 ## 🔗 Comunicación con SOAP
 
@@ -212,3 +106,83 @@ El servicio consume automáticamente los endpoints SOAP:
 - `GET /soap/info`
 
 Configurar `SOAP_BASE_URL` para cambiar la URL del servicio SOAP.
+
+## 🧪 Ejemplos de Uso
+
+### **1. Información del Servicio**
+
+```bash
+curl -X GET http://localhost:3000/
+```
+
+### **2. Registrar Cliente**
+
+```bash
+curl -X POST http://localhost:3000/api/wallet/register-client \
+  -H "Content-Type: application/json" \
+  -d '{
+    "documento": "12345678",
+    "nombres": "Juan Pérez",
+    "email": "juan@example.com",
+    "celular": "555-1234"
+  }'
+```
+
+### **3. Recargar Billetera**
+
+```bash
+curl -X POST http://localhost:3000/api/wallet/recharge \
+  -H "Content-Type: application/json" \
+  -d '{
+    "documento": "12345678",
+    "celular": "555-1234",
+    "valor": 100000
+  }'
+```
+
+### **4. Iniciar Pago**
+
+```bash
+curl -X POST http://localhost:3000/api/wallet/pay \
+  -H "Content-Type: application/json" \
+  -d '{
+    "documento": "12345678",
+    "celular": "555-1234",
+    "valor": 25000
+  }'
+```
+
+### **5. Confirmar Pago**
+
+```bash
+curl -X POST http://localhost:3000/api/wallet/confirm-payment \
+  -H "Content-Type: application/json" \
+  -d '{
+    "session_id": "uuid-generado",
+    "token": "123456"
+  }'
+```
+
+### **6. Consultar Saldo**
+
+```bash
+curl -X POST http://localhost:3000/api/wallet/balance \
+  -H "Content-Type: application/json" \
+  -d '{
+    "documento": "12345678",
+    "celular": "555-1234"
+  }'
+```
+
+### **7. Historial de Transacciones**
+
+```bash
+curl -X POST http://localhost:3000/api/wallet/history \
+  -H "Content-Type: application/json" \
+  -d '{
+    "documento": "12345678",
+    "celular": "555-1234",
+    "limit": 10,
+    "offset": 0
+  }'
+```

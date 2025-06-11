@@ -5,6 +5,7 @@ import {
   PayRequest,
   ConfirmPaymentRequest,
   CheckBalanceRequest,
+  GetTransactionHistoryRequest,
 } from "../types/index";
 
 // Validators
@@ -209,3 +210,47 @@ export const checkBalanceSchema = Joi.object<CheckBalanceRequest>({
       "any.required": "El celular es requerido",
     }),
 });
+
+export const getTransactionHistorySchema =
+  Joi.object<GetTransactionHistoryRequest>({
+    documento: Joi.string()
+      .trim()
+      .min(6)
+      .max(20)
+      .pattern(/^[0-9A-Za-z]+$/)
+      .required()
+      .messages({
+        "string.empty": "El documento es requerido",
+        "string.min": "El documento debe tener al menos 6 caracteres",
+        "string.max": "El documento no puede tener más de 20 caracteres",
+        "string.pattern.base":
+          "El documento solo puede contener números y letras",
+        "any.required": "El documento es requerido",
+      }),
+
+    celular: Joi.string()
+      .trim()
+      .min(10)
+      .max(15)
+      .pattern(/^[\+]?[0-9\-\s]+$/)
+      .required()
+      .messages({
+        "string.empty": "El celular es requerido",
+        "string.min": "El celular debe tener al menos 10 dígitos",
+        "string.max": "El celular no puede tener más de 15 dígitos",
+        "string.pattern.base":
+          "El celular solo puede contener números, espacios, guiones y el símbolo +",
+        "any.required": "El celular es requerido",
+      }),
+
+    limit: Joi.number().integer().min(1).max(100).optional().messages({
+      "number.base": "El límite debe ser un número",
+      "number.min": "El límite mínimo es 1",
+      "number.max": "El límite máximo es 100",
+    }),
+
+    offset: Joi.number().integer().min(0).optional().messages({
+      "number.base": "El offset debe ser un número",
+      "number.min": "El offset no puede ser negativo",
+    }),
+  });

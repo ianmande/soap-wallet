@@ -10,6 +10,8 @@ import {
   ConfirmPaymentResponse,
   CheckBalanceRequest,
   CheckBalanceResponse,
+  GetTransactionHistoryRequest,
+  GetTransactionHistoryResponse,
 } from "../types/index";
 import { httpClient } from "../api/httpClient";
 
@@ -72,6 +74,20 @@ export class SoapService {
       return await httpClient.post<CheckBalanceResponse>("/checkBalance", data);
     } catch (error) {
       console.error("Error al consultar saldo:", error);
+      throw error;
+    }
+  }
+
+  async getTransactionHistory(
+    data: GetTransactionHistoryRequest
+  ): Promise<ApiResponse<GetTransactionHistoryResponse>> {
+    try {
+      return await httpClient.post<GetTransactionHistoryResponse>(
+        "/getTransactionHistory",
+        data
+      );
+    } catch (error) {
+      console.error("Error al obtener historial de transacciones:", error);
       throw error;
     }
   }

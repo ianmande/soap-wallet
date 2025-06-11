@@ -22,3 +22,29 @@ export interface ConfirmPaymentResponse {
   new_balance: string;
   payment_confirmed: boolean;
 }
+
+export interface GetTransactionHistoryRequest {
+  documento: string;
+  celular: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface TransactionHistoryItem {
+  transaction_id: number;
+  type: "recharge" | "payment" | "payment_confirmation";
+  amount: string;
+  balance_before: string;
+  balance_after: string;
+  description: string;
+  created_at: string;
+  status: "completed" | "pending" | "failed";
+}
+
+export interface GetTransactionHistoryResponse {
+  wallet_id: number;
+  client_name: string;
+  total_transactions: number;
+  current_balance: string;
+  transactions: TransactionHistoryItem[];
+}

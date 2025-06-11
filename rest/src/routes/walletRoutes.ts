@@ -1,18 +1,21 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { soapService } from "../services/soapService.js";
+import { soapService } from "../services/soapService";
 import {
   registerClientSchema,
   rechargeWalletSchema,
   paySchema,
   confirmPaymentSchema,
   checkBalanceSchema,
-} from "../validators/walletValidators.js";
+  getTransactionHistorySchema,
+} from "../validators/walletValidators";
+
 import {
   RegisterClientRequest,
   RechargeWalletRequest,
   PayRequest,
   ConfirmPaymentRequest,
   CheckBalanceRequest,
+  GetTransactionHistoryRequest,
 } from "../types/index";
 
 const validateSchema = (schema: any) => {
@@ -167,6 +170,38 @@ router.post(
         console.log("✅ Saldo consultado:", result.data?.current_balance);
       } else {
         console.log("❌ Error al consultar saldo:", result.message_error);
+      }
+
+      res.status(result.success ? 200 : 400).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.post(
+  "/history",
+  validateSchema(getTransactionHistorySchema),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const historyData: GetTransactionHistoryRequest = req.body;
+
+      console.log("💼 Consultando historial de transacciones:", {
+        documento: historyData.documento,
+      });
+
+      const result = await soapService.getTransactionHistory(historyData);
+
+      if (result.success) {
+        console.log("✅ Historial de transacciones consultado:", {
+          total_transactions: result.data?.total_transactions,
+          current_balance: result.data?.current_balance,
+        });
+      } else {
+        console.log(
+          "❌ Error al consultar historial de transacciones:",
+          result.message_error
+        );
       }
 
       res.status(result.success ? 200 : 400).json(result);
